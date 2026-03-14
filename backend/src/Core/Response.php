@@ -6,11 +6,17 @@ namespace Src\Core;
 
 class Response
 {
-    public function json(array $data, int $status = 200): void
+    private int $statusCode = 200;
+
+    public function setStatusCode(int $statusCode): void
     {
-        http_response_code($status);
+        $this->statusCode = $statusCode;
+        http_response_code($statusCode);
+    }
+
+    public function json(array $data): void
+    {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
     }
 }

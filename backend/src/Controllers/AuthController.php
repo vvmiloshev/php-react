@@ -4,35 +4,21 @@ declare(strict_types=1);
 
 namespace Src\Controllers;
 
-use Src\Core\Database;
 use Src\Core\Request;
-use Src\Core\Response;
 
-class AuthController
+class AuthController extends AppController
 {
-    public function __construct(
-        private Database $db,
-        private Response $response
-    ) {
+    public function login(Request $request): void
+    {
+        $this->json([
+            'message' => 'Login endpoint',
+        ]);
     }
 
     public function register(Request $request): void
     {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
-    }
-
-    public function login(Request $request): void
-    {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
-    }
-
-    public function logout(Request $request): void
-    {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
-    }
-
-    public function me(Request $request): void
-    {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
+        $this->json([
+            'message' => 'Register endpoint',
+        ]);
     }
 }

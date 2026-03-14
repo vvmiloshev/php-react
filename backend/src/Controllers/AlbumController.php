@@ -4,25 +4,42 @@ declare(strict_types=1);
 
 namespace Src\Controllers;
 
-use Src\Core\Database;
 use Src\Core\Request;
-use Src\Core\Response;
 
-class AlbumController
+class AlbumController extends AppController
 {
-    public function __construct(
-        private Database $db,
-        private Response $response
-    ) {
-    }
-
     public function index(Request $request): void
     {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
+        $this->json([
+            'message' => 'Albums list endpoint',
+        ]);
+    }
+
+    public function show(Request $request): void
+    {
+        $this->json([
+            'message' => 'Album details endpoint',
+        ]);
     }
 
     public function store(Request $request): void
     {
-        $this->response->json(['message' => 'Not implemented yet'], 501);
+        $this->json([
+            'message' => 'Create album endpoint',
+        ], 201);
+    }
+
+    public function update(Request $request): void
+    {
+        $this->json([
+            'message' => 'Update album endpoint',
+        ]);
+    }
+
+    public function delete(Request $request): void
+    {
+        $this->json([
+            'message' => 'Delete album endpoint',
+        ]);
     }
 }

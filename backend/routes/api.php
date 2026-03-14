@@ -9,26 +9,25 @@ use Src\Controllers\PhotoController;
 use Src\Controllers\VoteController;
 use Src\Core\Router;
 
-function register_api_routes(
-    Router $router,
-    HealthController $healthController,
-    AuthController $authController,
-    AlbumController $albumController,
-    PhotoController $photoController,
-    VoteController $voteController
-): void {
-    $router->get('/api/health', [$healthController, 'index']);
+function register_api_routes(Router $router): void
+{
+    $router->get('/health', [HealthController::class, 'index']);
 
-    $router->post('/api/register', [$authController, 'register']);
-    $router->post('/api/login', [$authController, 'login']);
-    $router->post('/api/logout', [$authController, 'logout']);
-    $router->get('/api/me', [$authController, 'me']);
+    $router->post('/auth/login', [AuthController::class, 'login']);
+    $router->post('/auth/register', [AuthController::class, 'register']);
 
-    $router->get('/api/albums', [$albumController, 'index']);
-    $router->post('/api/albums', [$albumController, 'store']);
+    $router->get('/albums', [AlbumController::class, 'index']);
+    $router->get('/albums/show', [AlbumController::class, 'show']);
+    $router->post('/albums', [AlbumController::class, 'store']);
+    $router->put('/albums', [AlbumController::class, 'update']);
+    $router->delete('/albums', [AlbumController::class, 'delete']);
 
-    $router->get('/api/photos', [$photoController, 'index']);
-    $router->post('/api/photos', [$photoController, 'store']);
+    $router->get('/photos', [PhotoController::class, 'index']);
+    $router->get('/photos/show', [PhotoController::class, 'show']);
+    $router->post('/photos', [PhotoController::class, 'store']);
+    $router->put('/photos', [PhotoController::class, 'update']);
+    $router->delete('/photos', [PhotoController::class, 'delete']);
 
-    $router->post('/api/votes', [$voteController, 'store']);
+    $router->post('/votes', [VoteController::class, 'store']);
+    $router->delete('/votes', [VoteController::class, 'remove']);
 }
