@@ -6,8 +6,13 @@ use Src\Core\Database;
 use Src\Core\Request;
 use Src\Core\Response;
 use Src\Core\Router;
+use Src\Database\Migrator;
 
 $db = new Database();
+
+$migrator = new Migrator($db->pdo(), BASE_PATH . '/database/migrations');
+$migrator->bootstrap();
+
 $request = new Request();
 $response = new Response();
 
