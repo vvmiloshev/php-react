@@ -1,0 +1,15 @@
+{
+  "name": "vmilo/php-react-coursework",
+  "description": "Custom PHP backend for coursework project",
+  "type": "project",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "Src\\": "src/"
+    },
+    "files": [
+      "src/Support/Helpers.php",
+      "src/Support/Auth.php"
+    ]
+  }
+}
