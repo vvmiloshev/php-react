@@ -25,37 +25,25 @@ class AuthController extends AppController
         $password = (string) ($request->input('password') ?? '');
 
         if ($email === '' || $password === '') {
-            $this->json([
-                'message' => 'Email and password are required.',
-            ], 422);
-
+            $this->error('Email and password are required.', 422);
             return;
         }
 
         $user = $this->users->findByEmail($email);
 
         if ($user === false) {
-            $this->json([
-                'message' => 'Invalid credentials.',
-            ], 401);
-
+            $this->error('Invalid credentials.', 401);
             return;
         }
 
         if (!password_verify($password, $user['password'])) {
-            $this->json([
-                'message' => 'Invalid credentials.',
-            ], 401);
-
+            $this->error('Invalid credentials.', 401);
             return;
         }
 
         unset($user['password']);
 
-        $this->json([
-            'message' => 'Login successful.',
-            'data' => $user,
-        ]);
+        $this->success($user, 'Login successful.');
     }
 
     public function register(Request $request): void
@@ -66,65 +54,43 @@ class AuthController extends AppController
         $passwordConfirmation = (string) ($request->input('password_confirmation') ?? '');
 
         if ($name === '' || $email === '' || $password === '') {
-            $this->json([
-                'message' => 'Name, email and password are required.',
-            ], 422);
-
+            $this->error('Name, email and password are required.', 422);
             return;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->json([
-                'message' => 'Invalid email address.',
-            ], 422);
-
+            $this->error('Invalid email address.', 422);
             return;
         }
 
         if (mb_strlen($password) < 6) {
-            $this->json([
-                'message' => 'Password must be at least 6 characters long.',
-            ], 422);
-
+            $this->error('Password must be at least 6 characters long.', 422);
             return;
         }
 
         if ($passwordConfirmation !== '' && $password !== $passwordConfirmation) {
-            $this->json([
-                'message' => 'Password confirmation does not match.',
-            ], 422);
-
+            $this->error('Password confirmation does not match.', 422);
             return;
         }
 
         $existingUser = $this->users->findByEmail($email);
 
         if ($existingUser !== false) {
-            $this->json([
-                'message' => 'User with this email already exists.',
-            ], 409);
-
+            $this->error('User with this email already exists.', 409);
             return;
         }
 
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-
         $userId = $this->users->create($name, $email, $passwordHash);
         $user = $this->users->findById($userId);
 
         if ($user === false) {
-            $this->json([
-                'message' => 'User created, but could not be loaded.',
-            ], 500);
-
+            $this->error('User created, but could not be loaded.', 500);
             return;
         }
 
         unset($user['password']);
 
-        $this->json([
-            'message' => 'User registered successfully.',
-            'data' => $user,
-        ], 201);
+        $this->created($user, 'User registered successfully.');
     }
 }

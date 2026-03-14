@@ -30,17 +30,6 @@ abstract class AppModel
         return $statement->fetch();
     }
 
-    public function deleteById(int $id): bool
-    {
-        $statement = $this->pdo->prepare(
-            "DELETE FROM {$this->table} WHERE id = :id"
-        );
-
-        return $statement->execute([
-            'id' => $id,
-        ]);
-    }
-
     public function all(string $orderBy = 'id', string $direction = 'DESC'): array
     {
         $allowedDirections = ['ASC', 'DESC'];
@@ -50,10 +39,27 @@ abstract class AppModel
             $direction = 'DESC';
         }
 
-        $sql = "SELECT * FROM {$this->table} ORDER BY {$orderBy} {$direction}";
+        $allowedOrderBy = ['id', 'created_at', 'updated_at', 'name', 'title'];
 
-        $statement = $this->pdo->query($sql);
+        if (!in_array($orderBy, $allowedOrderBy, true)) {
+            $orderBy = 'id';
+        }
+
+        $statement = $this->pdo->query(
+            "SELECT * FROM {$this->table} ORDER BY {$orderBy} {$direction}"
+        );
 
         return $statement->fetchAll();
+    }
+
+    public function deleteById(int $id): bool
+    {
+        $statement = $this->pdo->prepare(
+            "DELETE FROM {$this->table} WHERE id = :id"
+        );
+
+        return $statement->execute([
+            'id' => $id,
+        ]);
     }
 }

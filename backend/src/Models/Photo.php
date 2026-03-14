@@ -16,7 +16,8 @@ class Photo extends AppModel
         ?string $description = null
     ): int {
         $statement = $this->pdo->prepare(
-            'INSERT INTO photos (album_id, user_id, title, path, description) VALUES (:album_id, :user_id, :title, :path, :description)'
+            'INSERT INTO photos (album_id, user_id, title, path, description)
+             VALUES (:album_id, :user_id, :title, :path, :description)'
         );
 
         $statement->execute([
@@ -41,5 +42,21 @@ class Photo extends AppModel
         ]);
 
         return $statement->fetchAll();
+    }
+
+    public function updateById(int $id, array $data): bool
+    {
+        $statement = $this->pdo->prepare(
+            'UPDATE photos
+             SET title = :title, path = :path, description = :description
+             WHERE id = :id'
+        );
+
+        return $statement->execute([
+            'id' => $id,
+            'title' => $data['title'],
+            'path' => $data['path'],
+            'description' => $data['description'],
+        ]);
     }
 }

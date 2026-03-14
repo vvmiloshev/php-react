@@ -11,7 +11,8 @@ class Album extends AppModel
     public function create(string $title, ?string $description, int $userId): int
     {
         $statement = $this->pdo->prepare(
-            'INSERT INTO albums (title, description, user_id) VALUES (:title, :description, :user_id)'
+            'INSERT INTO albums (title, description, user_id)
+             VALUES (:title, :description, :user_id)'
         );
 
         $statement->execute([
@@ -34,5 +35,20 @@ class Album extends AppModel
         ]);
 
         return $statement->fetchAll();
+    }
+
+    public function updateById(int $id, array $data): bool
+    {
+        $statement = $this->pdo->prepare(
+            'UPDATE albums
+             SET title = :title, description = :description
+             WHERE id = :id'
+        );
+
+        return $statement->execute([
+            'id' => $id,
+            'title' => $data['title'],
+            'description' => $data['description'],
+        ]);
     }
 }

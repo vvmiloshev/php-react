@@ -26,59 +26,43 @@ class VoteController extends AppController
         $value = (int) ($request->input('value') ?? 0);
 
         if ($photoId <= 0) {
-            $this->json([
-                'message' => 'Valid photo_id is required.',
-            ], 422);
-
+            $this->error('Valid photo_id is required.', 422);
             return;
         }
 
         if ($userId <= 0) {
-            $this->json([
-                'message' => 'Valid user_id is required.',
-            ], 422);
-
+            $this->error('Valid user_id is required.', 422);
             return;
         }
 
         if (!in_array($value, [1, -1], true)) {
-            $this->json([
-                'message' => 'Vote value must be 1 or -1.',
-            ], 422);
-
+            $this->error('Vote value must be 1 or -1.', 422);
             return;
         }
 
         $existingVote = $this->votes->findUserVoteForPhoto($photoId, $userId);
 
         if ($existingVote !== false) {
-            $updated = $this->votes->updateValue(
-                (int) $existingVote['id'],
-                $value
-            );
+            $updated = $this->votes->updateValue((int) $existingVote['id'], $value);
 
             if ($updated === false) {
-                $this->json([
-                    'message' => 'Vote could not be updated.',
-                ], 500);
-
+                $this->error('Vote could not be updated.', 500);
                 return;
             }
 
-            $this->json([
-                'message' => 'Vote updated successfully.',
-                'data' => $this->votes->findById((int) $existingVote['id']),
-            ]);
-
+            $this->success(
+                $this->votes->findById((int) $existingVote['id']) ?: [],
+                'Vote updated successfully.'
+            );
             return;
         }
 
         $voteId = $this->votes->create($photoId, $userId, $value);
 
-        $this->json([
-            'message' => 'Vote created successfully.',
-            'data' => $this->votes->findById($voteId),
-        ], 201);
+        $this->created(
+            $this->votes->findById($voteId) ?: [],
+            'Vote created successfully.'
+        );
     }
 
     public function remove(Request $request): void
@@ -87,43 +71,29 @@ class VoteController extends AppController
         $userId = (int) ($request->input('user_id') ?? 0);
 
         if ($photoId <= 0) {
-            $this->json([
-                'message' => 'Valid photo_id is required.',
-            ], 422);
-
+            $this->error('Valid photo_id is required.', 422);
             return;
         }
 
         if ($userId <= 0) {
-            $this->json([
-                'message' => 'Valid user_id is required.',
-            ], 422);
-
+            $this->error('Valid user_id is required.', 422);
             return;
         }
 
         $existingVote = $this->votes->findUserVoteForPhoto($photoId, $userId);
 
         if ($existingVote === false) {
-            $this->json([
-                'message' => 'Vote not found.',
-            ], 404);
-
+            $this->error('Vote not found.', 404);
             return;
         }
 
         $deleted = $this->votes->deleteById((int) $existingVote['id']);
 
         if ($deleted === false) {
-            $this->json([
-                'message' => 'Vote could not be removed.',
-            ], 500);
-
+            $this->error('Vote could not be removed.', 500);
             return;
         }
 
-        $this->json([
-            'message' => 'Vote removed successfully.',
-        ]);
+        $this->success([], 'Vote removed successfully.');
     }
 }

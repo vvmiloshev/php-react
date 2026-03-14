@@ -5,39 +5,50 @@ declare(strict_types=1);
 namespace Src\Controllers;
 
 use Src\Core\Database;
-use Src\Core\Response;
 
 abstract class AppController
 {
-    protected Database $db;
-    protected Response $response;
+    protected Database $database;
 
-    public function __construct(Database $db, Response $response)
+    public function __construct(Database $database)
     {
-        $this->db = $db;
-        $this->response = $response;
+        $this->database = $database;
     }
 
     protected function json(array $data, int $statusCode = 200): void
     {
-        $this->response->setStatusCode($statusCode);
-        $this->response->json($data);
+        http_response_code($statusCode);
+        header('Content-Type: application/json; charset=utf-8');
+
+        echo json_encode(
+            $data,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
     }
 
-    protected function success(array $data = [], int $statusCode = 200): void
+    protected function success(array $data = [], string $message = 'OK', int $statusCode = 200): void
     {
         $this->json([
-            'success' => true,
+            'message' => $message,
             'data' => $data,
         ], $statusCode);
     }
 
+    protected function created(array $data = [], string $message = 'Created'): void
+    {
+        $this->success($data, $message, 201);
+    }
+
     protected function error(string $message, int $statusCode = 400, array $errors = []): void
     {
-        $this->json([
-            'success' => false,
+        $payload = [
             'message' => $message,
-            'errors' => $errors,
-        ], $statusCode);
+        ];
+
+        if ($errors !== []) {
+            $payload['errors'] = $errors;
+        }
+
+        $this->json($payload, $statusCode);
     }
 }
