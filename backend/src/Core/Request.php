@@ -92,6 +92,7 @@ class Request
         return $_SERVER[$headerKey] ?? $default;
     }
 
+
     public function bearerToken(): ?string
     {
         $header = $this->header('Authorization');

@@ -15,6 +15,8 @@ function register_api_routes(Router $router): void
 
     $router->post('/api/auth/login', [AuthController::class, 'login']);
     $router->post('/api/auth/register', [AuthController::class, 'register']);
+    $router->get('/api/auth/me', [AuthController::class, 'me']);
+    $router->post('/api/auth/logout', [AuthController::class, 'logout']);
 
     $router->get('/api/albums', [AlbumController::class, 'index']);
     $router->get('/api/albums/{id}', [AlbumController::class, 'show']);
