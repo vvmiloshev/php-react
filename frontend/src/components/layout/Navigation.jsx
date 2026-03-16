@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 const linkClass = ({ isActive }) =>
     [
@@ -9,6 +9,7 @@ const linkClass = ({ isActive }) =>
     ].join(' ')
 
 export default function Navigation({ isAuthenticated }) {
+    const navigate = useNavigate()
 
     const handleLogout = async () => {
         const token = localStorage.getItem('token')
@@ -27,7 +28,7 @@ export default function Navigation({ isAuthenticated }) {
 
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        window.location.href = '/'
+        navigate('/')
     }
 
     return (
@@ -37,43 +38,56 @@ export default function Navigation({ isAuthenticated }) {
                     Home
                 </NavLink>
 
-                {!isAuthenticated && (
+                {!isAuthenticated ? (
                     <>
-                        <NavLink to="/auth"  className={({ isActive }) =>
-                                [
-                                    linkClass({ isActive }),
-                                    'ml-auto',
-                                ].join(' ')
-                            }>
+                        <NavLink to="/gallery" className={linkClass}>
+                            Gallery
+                        </NavLink>
+
+                        <NavLink to="/poll" className={linkClass}>
+                            Poll
+                        </NavLink>
+
+                        <NavLink to="/poll-results" className={linkClass}>
+                            Poll Results
+                        </NavLink>
+
+                        <NavLink
+                            to="/auth"
+                            className={({ isActive }) =>
+                                [linkClass({ isActive }), 'ml-auto'].join(' ')
+                            }
+                        >
                             Login / Register
                         </NavLink>
                     </>
-                )}
-                {isAuthenticated && (
+                ) : (
                     <>
-                        <NavLink to="/feed" className={linkClass}>
-                            Feed
-                        </NavLink>
-
                         <NavLink to="/photos" className={linkClass}>
                             Photos
                         </NavLink>
 
-                        <NavLink to="/profile" className={linkClass}>
-                            Profile
+                        <NavLink to="/gallery" className={linkClass}>
+                            Gallery
                         </NavLink>
+
+                        <NavLink to="/poll" className={linkClass}>
+                            Poll
+                        </NavLink>
+
+                        <NavLink to="/poll-results" className={linkClass}>
+                            Poll Results
+                        </NavLink>
+
                         <button
                             type="button"
                             onClick={handleLogout}
-                            className={'ml-auto rounded-md px-3 py-2 text-sm font-medium transition text-slate-700 hover:bg-slate-200'}
+                            className="ml-auto rounded-md px-3 py-2 text-sm font-medium transition text-slate-700 hover:bg-slate-200"
                         >
                             Logout
                         </button>
                     </>
                 )}
-
-
-
             </div>
         </nav>
     )
