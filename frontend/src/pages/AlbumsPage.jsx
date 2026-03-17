@@ -11,10 +11,14 @@ function AlbumCard({ album }) {
         >
             <div className="aspect-[4/3] bg-slate-200">
                 {album.cover_image_url ? (
-                    <img
+                    /*<img
                         src={album.cover_image_url}
                         alt={album.title}
                         className="h-full w-full object-cover"
+                    />*/
+                    <img
+                        src={`http://localhost${album.cover_image_url}`}
+                        alt={album.title}
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm text-slate-500">

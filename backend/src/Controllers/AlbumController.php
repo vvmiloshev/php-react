@@ -21,11 +21,11 @@ class AlbumController extends AppController
 
     public function index(Request $request): void
     {
-        $userId = (int) ($request->input('user_id') ?? 0);
+        /*$userId = (int) ($request->input('user_id') ?? 0);
 
         if ($userId > 0) {
             $this->success(
-                $this->albums->findByUserId($userId),
+                $this->albums->findAll($userId),
                 'Albums fetched successfully.'
             );
             return;
@@ -33,6 +33,11 @@ class AlbumController extends AppController
 
         $this->success(
             $this->albums->all(),
+            'Albums fetched successfully.'
+        );*/
+
+        $this->success(
+            $this->albums->findAll(),
             'Albums fetched successfully.'
         );
     }

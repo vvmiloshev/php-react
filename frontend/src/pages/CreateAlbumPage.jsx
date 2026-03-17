@@ -116,7 +116,7 @@ export default function CreateAlbumPage() {
     }
 
     const uploadPhotos = async (files) => {
-        if (!files.length) {
+        if (!files?.length) {
             return
         }
 
@@ -130,30 +130,34 @@ export default function CreateAlbumPage() {
                 currentAlbumId = await createAlbum(title)
             }
 
-            const formData = new FormData()
+            const uploadedPhotos = []
 
-            files.forEach((file) => {
-                formData.append('photos[]', file)
-            })
+            for (const file of files) {
+                const formData = new FormData()
+                formData.append('album_id', String(currentAlbumId))
+                formData.append('title', file.name)
+                formData.append('description', '')
+                formData.append('image', file)
 
-            const response = await fetch(
-                `http://localhost/api/albums/${currentAlbumId}/photos`,
-                {
+                const response = await fetch('http://localhost/api/photos', {
                     method: 'POST',
                     headers: {
                         ...(token ? { Authorization: `Bearer ${token}` } : {}),
                         Accept: 'application/json',
                     },
                     body: formData,
+                })
+
+                const data = await response.json().catch(() => ({}))
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Failed to upload ${file.name}.`)
                 }
-            )
 
-            if (!response.ok) {
-                throw new Error('Failed to upload photos.')
+                if (data.data) {
+                    uploadedPhotos.push(data.data)
+                }
             }
-
-            const data = await response.json()
-            const uploadedPhotos = data.data ?? data
 
             setPhotos((prev) => [...prev, ...uploadedPhotos])
             showSuccess('Photos uploaded.')
@@ -349,7 +353,7 @@ export default function CreateAlbumPage() {
                             >
                                 <div className="aspect-[4/3]">
                                     <img
-                                        src={photo.image_url}
+                                        src={`http://localhost/api/files/photos/${photo.path.split('/').pop()}`}
                                         alt={photo.title || 'Album photo'}
                                         className="h-full w-full object-cover"
                                     />

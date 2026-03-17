@@ -27,9 +27,10 @@ function register_api_routes(Router $router): void
 
     $router->get('/api/photos', [PhotoController::class, 'index']);
     $router->get('/api/photos/{id}', [PhotoController::class, 'show']);
-    $router->post('/api/photos', [PhotoController::class, 'store']);
     $router->put('/api/photos/{id}', [PhotoController::class, 'update']);
     $router->delete('/api/photos/{id}', [PhotoController::class, 'delete']);
+    $router->post('/api/photos', [PhotoController::class, 'store'], [AuthMiddleware::class]);
+    $router->get('/api/files/photos/{file}', [PhotoController::class, 'serve']);
 
     $router->post('/api/votes', [VoteController::class, 'store']);
     $router->delete('/api/votes', [VoteController::class, 'remove']);

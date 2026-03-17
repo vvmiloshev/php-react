@@ -37,6 +37,43 @@ class Album extends AppModel
         return $statement->fetchAll();
     }
 
+    public function findAll(): array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM albums ORDER BY id DESC'
+        );
+
+        $statement->execute();
+
+        $albums = $statement->fetchAll();
+
+        foreach ($albums as &$album) {
+            $coverStatement = $this->pdo->prepare(
+                'SELECT path
+             FROM photos
+             WHERE album_id = :album_id
+             ORDER BY id ASC
+             LIMIT 1'
+            );
+
+            $coverStatement->execute([
+                'album_id' => $album['id'],
+            ]);
+
+            $coverPhoto = $coverStatement->fetch();
+
+            $album['cover_image_url'] = null;
+
+            if ($coverPhoto && !empty($coverPhoto['path'])) {
+                $album['cover_image_url'] = '/api/files/photos/' . basename((string) $coverPhoto['path']);
+            }
+        }
+
+        unset($album);
+
+        return $albums;
+    }
+
     public function updateById(int $id, array $data): bool
     {
         $statement = $this->pdo->prepare(
