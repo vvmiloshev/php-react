@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
 import AuthPage from '../pages/AuthPage'
-import FeedPage from '../pages/FeedPage'
-import ProfilePage from '../pages/ProfilePage'
-import PhotosPage from '../pages/PhotosPage'
+import AlbumsPage from '../pages/AlbumsPage'
+import CreateAlbumPage from '../pages/CreateAlbumPage'
+import AlbumDetailsPage from '../pages/AlbumDetailsPage'
+import PollPage from '../pages/PollPage'
+import PollResultsPage from '../pages/PollResultsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import ProtectedRoute from './ProtectedRoute'
 import AppLayout from '../components/layout/AppLayout'
@@ -17,28 +19,46 @@ export default function AppRouter() {
                     <Route path="/auth" element={<AuthPage />} />
 
                     <Route
-                        path="/feed"
+                        path="/albums"
                         element={
                             <ProtectedRoute>
-                                <FeedPage />
+                                <AlbumsPage />
                             </ProtectedRoute>
                         }
                     />
 
                     <Route
-                        path="/profile"
+                        path="/albums/create"
                         element={
                             <ProtectedRoute>
-                                <ProfilePage />
+                                <CreateAlbumPage />
                             </ProtectedRoute>
                         }
                     />
 
                     <Route
-                        path="/photos"
+                        path="/albums/:id"
                         element={
                             <ProtectedRoute>
-                                <PhotosPage />
+                                <AlbumDetailsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/poll"
+                        element={
+                            <ProtectedRoute>
+                                <PollPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/poll-results"
+                        element={
+                            <ProtectedRoute>
+                                <PollResultsPage />
                             </ProtectedRoute>
                         }
                     />

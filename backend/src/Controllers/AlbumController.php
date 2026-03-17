@@ -60,7 +60,8 @@ class AlbumController extends AppController
     {
         $title = trim((string) ($request->input('title') ?? ''));
         $description = $request->input('description');
-        $userId = (int) ($request->input('user_id') ?? 0);
+        $user = $request->user();
+        $userId = (int) ($user['user_id'] ?? $user['id'] ?? 0);
 
         if ($title === '') {
             $this->error('Title is required.', 422);
@@ -68,7 +69,7 @@ class AlbumController extends AppController
         }
 
         if ($userId <= 0) {
-            $this->error('Valid user_id is required.', 422);
+            $this->error('Unauthorized.', 401);
             return;
         }
 

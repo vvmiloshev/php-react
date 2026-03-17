@@ -34,8 +34,14 @@ export function getAuthHeaders() {
     const token = getToken()
 
     return {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }
+}
+
+export function getJsonAuthHeaders() {
+    return {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
     }
 }

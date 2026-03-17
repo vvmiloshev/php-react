@@ -9,14 +9,20 @@ class Request
     private array $queryParams;
     private array $bodyParams;
     private array $routeParams = [];
+    private array $files;
+    private array $server;
     private string $method;
     private string $uriPath;
     private ?array $jsonBodyCache = null;
+    private ?string $rawBodyCache = null;
+    private ?array $authenticatedUser = null;
 
     public function __construct()
     {
+        $this->server = $_SERVER ?? [];
         $this->queryParams = $_GET ?? [];
-        $this->method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $this->files = $_FILES ?? [];
+        $this->method = strtoupper((string) ($this->server['REQUEST_METHOD'] ?? 'GET'));
         $this->uriPath = $this->detectPath();
         $this->bodyParams = $this->detectBodyParams();
     }
@@ -87,37 +93,134 @@ class Request
 
     public function header(string $name, mixed $default = null): mixed
     {
-        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+        $normalized = strtoupper(str_replace('-', '_', $name));
 
-        return $_SERVER[$headerKey] ?? $default;
+        if ($normalized === 'CONTENT_TYPE') {
+            return $this->server['CONTENT_TYPE'] ?? $default;
+        }
+
+        if ($normalized === 'CONTENT_LENGTH') {
+            return $this->server['CONTENT_LENGTH'] ?? $default;
+        }
+
+        $headerKey = 'HTTP_' . $normalized;
+
+        if (isset($this->server[$headerKey])) {
+            return $this->server[$headerKey];
+        }
+
+        if ($normalized === 'AUTHORIZATION') {
+            return $this->server['REDIRECT_HTTP_AUTHORIZATION']
+                ?? $this->server['PHP_AUTH_DIGEST']
+                ?? (isset($this->server['PHP_AUTH_USER'], $this->server['PHP_AUTH_PW'])
+                    ? 'Basic ' . base64_encode($this->server['PHP_AUTH_USER'] . ':' . $this->server['PHP_AUTH_PW'])
+                    : $default);
+        }
+
+        return $default;
     }
 
+    public function server(string $key, mixed $default = null): mixed
+    {
+        return $this->server[$key] ?? $default;
+    }
 
     public function bearerToken(): ?string
     {
         $header = $this->header('Authorization');
 
-        if (!is_string($header)) {
+        if (!is_string($header) || trim($header) === '') {
             return null;
         }
 
-        if (!preg_match('/^Bearer\s+(.+)$/i', $header, $matches)) {
+        if (!preg_match('/^Bearer\s+(.+)$/i', trim($header), $matches)) {
             return null;
         }
 
         return trim($matches[1]);
     }
 
+    public function rawBody(): string
+    {
+        if ($this->rawBodyCache !== null) {
+            return $this->rawBodyCache;
+        }
+
+        $rawInput = file_get_contents('php://input');
+        $this->rawBodyCache = is_string($rawInput) ? $rawInput : '';
+
+        return $this->rawBodyCache;
+    }
+
+    public function isJson(): bool
+    {
+        $contentType = (string) ($this->header('Content-Type', '') ?? '');
+
+        return str_contains(strtolower($contentType), 'application/json');
+    }
+
+    public function files(): array
+    {
+        return $this->files;
+    }
+
+    public function file(string $key, mixed $default = null): mixed
+    {
+        return $this->files[$key] ?? $default;
+    }
+
+    public function hasFile(string $key): bool
+    {
+        if (!array_key_exists($key, $this->files)) {
+            return false;
+        }
+
+        $file = $this->files[$key];
+
+        if (!is_array($file)) {
+            return false;
+        }
+
+        if (isset($file['error']) && is_int($file['error'])) {
+            return $file['error'] !== UPLOAD_ERR_NO_FILE;
+        }
+
+        if (isset($file['name']) && is_array($file['name'])) {
+            foreach ($file['name'] as $index => $name) {
+                if (($file['error'][$index] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function setUser(?array $user): void
+    {
+        $this->authenticatedUser = $user;
+    }
+
+    public function user(): ?array
+    {
+        return $this->authenticatedUser;
+    }
+
+    public function guest(): bool
+    {
+        return $this->authenticatedUser === null;
+    }
+
     private function detectPath(): string
     {
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = $this->server['REQUEST_URI'] ?? '/';
         $path = parse_url($uri, PHP_URL_PATH);
 
         if (!is_string($path) || $path === '') {
             return '/';
         }
 
-        return $path;
+        return rtrim($path, '/') ?: '/';
     }
 
     private function detectBodyParams(): array
@@ -126,9 +229,7 @@ class Request
             return [];
         }
 
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
-        if (str_contains($contentType, 'application/json')) {
+        if ($this->isJson()) {
             return $this->parseJsonBody();
         }
 
@@ -136,12 +237,13 @@ class Request
             return $_POST;
         }
 
-        $rawInput = file_get_contents('php://input');
+        $rawInput = $this->rawBody();
 
-        if (!is_string($rawInput) || trim($rawInput) === '') {
+        if (trim($rawInput) === '') {
             return [];
         }
 
+        $parsed = [];
         parse_str($rawInput, $parsed);
 
         return is_array($parsed) ? $parsed : [];
@@ -153,9 +255,9 @@ class Request
             return $this->jsonBodyCache;
         }
 
-        $rawInput = file_get_contents('php://input');
+        $rawInput = $this->rawBody();
 
-        if (!is_string($rawInput) || trim($rawInput) === '') {
+        if (trim($rawInput) === '') {
             $this->jsonBodyCache = [];
             return $this->jsonBodyCache;
         }

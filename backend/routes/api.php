@@ -8,6 +8,7 @@ use Src\Controllers\HealthController;
 use Src\Controllers\PhotoController;
 use Src\Controllers\VoteController;
 use Src\Core\Router;
+use Src\Middleware\AuthMiddleware;
 
 function register_api_routes(Router $router): void
 {
@@ -20,9 +21,9 @@ function register_api_routes(Router $router): void
 
     $router->get('/api/albums', [AlbumController::class, 'index']);
     $router->get('/api/albums/{id}', [AlbumController::class, 'show']);
-    $router->post('/api/albums', [AlbumController::class, 'store']);
-    $router->put('/api/albums/{id}', [AlbumController::class, 'update']);
-    $router->delete('/api/albums/{id}', [AlbumController::class, 'delete']);
+    $router->post('/api/albums', [AlbumController::class, 'store'], [AuthMiddleware::class]);
+    $router->put('/api/albums/{id}', [AlbumController::class, 'update'], [AuthMiddleware::class]);
+    $router->delete('/api/albums/{id}', [AlbumController::class, 'delete'], [AuthMiddleware::class]);
 
     $router->get('/api/photos', [PhotoController::class, 'index']);
     $router->get('/api/photos/{id}', [PhotoController::class, 'show']);

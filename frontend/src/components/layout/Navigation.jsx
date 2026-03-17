@@ -63,12 +63,8 @@ export default function Navigation({ isAuthenticated }) {
                     </>
                 ) : (
                     <>
-                        <NavLink to="/photos" className={linkClass}>
-                            Photos
-                        </NavLink>
-
-                        <NavLink to="/gallery" className={linkClass}>
-                            Gallery
+                        <NavLink to="/albums" className={linkClass}>
+                            Albums
                         </NavLink>
 
                         <NavLink to="/poll" className={linkClass}>

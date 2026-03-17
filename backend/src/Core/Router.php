@@ -16,24 +16,24 @@ class Router
         $this->database = $database;
     }
 
-    public function get(string $path, array $handler): void
+    public function get(string $path, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('GET', $path, $handler);
+        $this->addRoute('GET', $path, $handler, $middlewares);
     }
 
-    public function post(string $path, array $handler): void
+    public function post(string $path, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('POST', $path, $handler);
+        $this->addRoute('POST', $path, $handler, $middlewares);
     }
 
-    public function put(string $path, array $handler): void
+    public function put(string $path, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('PUT', $path, $handler);
+        $this->addRoute('PUT', $path, $handler, $middlewares);
     }
 
-    public function delete(string $path, array $handler): void
+    public function delete(string $path, array $handler, array $middlewares = []): void
     {
-        $this->addRoute('DELETE', $path, $handler);
+        $this->addRoute('DELETE', $path, $handler, $middlewares);
     }
 
     public function dispatch(Request $request): void
@@ -45,7 +45,6 @@ class Router
 
         foreach ($this->routes as $route) {
             $routePath = $this->normalizePath($route['path']);
-
             $params = $this->matchPath($routePath, $requestPath);
 
             if ($params === false) {
@@ -58,6 +57,11 @@ class Router
             }
 
             $request->setRouteParams($params);
+
+            foreach ($route['middlewares'] as $middlewareClass) {
+                $middleware = new $middlewareClass($this->database, $this->response);
+                $middleware->handle($request);
+            }
 
             [$controllerClass, $action] = $route['handler'];
 
@@ -80,12 +84,13 @@ class Router
         ], 404);
     }
 
-    private function addRoute(string $method, string $path, array $handler): void
+    private function addRoute(string $method, string $path, array $handler, array $middlewares = []): void
     {
         $this->routes[] = [
             'method' => strtoupper($method),
             'path' => $path,
             'handler' => $handler,
+            'middlewares' => $middlewares,
         ];
     }
 
