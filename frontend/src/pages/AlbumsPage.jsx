@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const PER_PAGE = 3
+const PER_PAGE = 4
 
 function AlbumCard({ album }) {
     return (
