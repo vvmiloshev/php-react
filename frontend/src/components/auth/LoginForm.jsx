@@ -75,7 +75,7 @@ export default function LoginForm() {
 
             setAuthData(result.data.token, result.data.user)
 
-            navigate('/feed')
+            navigate('/')
             window.location.reload()
         } catch (error) {
             setServerError(error.message)

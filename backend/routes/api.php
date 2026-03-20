@@ -6,6 +6,7 @@ use Src\Controllers\AlbumController;
 use Src\Controllers\AuthController;
 use Src\Controllers\HealthController;
 use Src\Controllers\PhotoController;
+use Src\Controllers\PollController;
 use Src\Controllers\VoteController;
 use Src\Core\Router;
 use Src\Middleware\AuthMiddleware;
@@ -32,6 +33,17 @@ function register_api_routes(Router $router): void
     $router->post('/api/photos', [PhotoController::class, 'store'], [AuthMiddleware::class]);
     $router->get('/api/files/photos/{file}', [PhotoController::class, 'serve']);
 
-    $router->post('/api/votes', [VoteController::class, 'store']);
-    $router->delete('/api/votes', [VoteController::class, 'remove']);
+
+    $router->get('/api/polls', [PollController::class, 'index'], [AuthMiddleware::class]);
+    $router->get('/api/polls/active', [PollController::class, 'active']);
+    $router->get('/api/polls/closed', [PollController::class, 'closed']);
+    $router->get('/api/polls/{id}', [PollController::class, 'show']);
+
+    $router->post('/api/polls', [PollController::class, 'store'], [AuthMiddleware::class]);
+    $router->post('/api/polls/{id}/activate', [PollController::class, 'activate'], [AuthMiddleware::class]);
+    $router->post('/api/polls/{id}/close', [PollController::class, 'close'], [AuthMiddleware::class]);
+    $router->post('/api/polls/{id}/vote', [PollController::class, 'vote'], [AuthMiddleware::class]);
+    $router->get('/api/polls/{id}/results', [PollController::class, 'results'], [AuthMiddleware::class]);
+    $router->put('/api/polls/{id}', [PollController::class, 'update'], [AuthMiddleware::class]);
+
 }

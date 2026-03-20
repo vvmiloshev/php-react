@@ -12,6 +12,9 @@ import PollResultsPage from '../pages/PollResultsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import ProtectedRoute from './ProtectedRoute'
 import AppLayout from '../components/layout/AppLayout'
+import CreatePollPage from "../pages/CreatePollPage";
+import ManagePollsPage from "../pages/ManagePollsPage";
+import EditPollPage from "../pages/EditPollPage";
 
 export default function AppRouter() {
     return (
@@ -61,6 +64,50 @@ export default function AppRouter() {
                     />
 
                     <Route path="/poll-results"
+                        element={
+                            <ProtectedRoute>
+                                <PollResultsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/polls/create"
+                        element={
+                            <ProtectedRoute>
+                                <CreatePollPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/polls/manage"
+                        element={
+                            <ProtectedRoute>
+                                <ManagePollsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/polls/:id/results"
+                        element={
+                            <ProtectedRoute>
+                                <PollResultsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/manage-polls/:id/edit"
+                        element={
+                            <ProtectedRoute>
+                                <EditPollPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/polls/:id/results"
                         element={
                             <ProtectedRoute>
                                 <PollResultsPage />

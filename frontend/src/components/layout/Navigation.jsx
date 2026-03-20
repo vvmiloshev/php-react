@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 const linkClass = ({ isActive }) =>
     [
@@ -8,14 +9,31 @@ const linkClass = ({ isActive }) =>
             : 'text-slate-700 hover:bg-slate-200',
     ].join(' ')
 
-export default function Navigation({ isAuthenticated }) {
+export default function Navigation() {
     const navigate = useNavigate()
+    const [isAuthenticated, setIsAuthenticated] = useState(
+        Boolean(localStorage.getItem('token'))
+    )
+
+    useEffect(() => {
+        const syncAuthState = () => {
+            setIsAuthenticated(Boolean(localStorage.getItem('token')))
+        }
+
+        window.addEventListener('storage', syncAuthState)
+        window.addEventListener('auth-changed', syncAuthState)
+
+        return () => {
+            window.removeEventListener('storage', syncAuthState)
+            window.removeEventListener('auth-changed', syncAuthState)
+        }
+    }, [])
 
     const handleLogout = async () => {
         const token = localStorage.getItem('token')
 
         try {
-            await fetch('http://localhost/api/logout', {
+            await fetch('http://localhost/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -28,6 +46,8 @@ export default function Navigation({ isAuthenticated }) {
 
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        setIsAuthenticated(false)
+        window.dispatchEvent(new Event('auth-changed'))
         navigate('/')
     }
 
@@ -38,18 +58,18 @@ export default function Navigation({ isAuthenticated }) {
                     Home
                 </NavLink>
 
+                <NavLink to="/albums" className={linkClass}>
+                    Albums
+                </NavLink>
+
+                <NavLink to="/poll" className={linkClass}>
+                    Poll
+                </NavLink>
+
                 {!isAuthenticated ? (
                     <>
                         <NavLink to="/gallery" className={linkClass}>
                             Gallery
-                        </NavLink>
-
-                        <NavLink to="/poll" className={linkClass}>
-                            Poll
-                        </NavLink>
-
-                        <NavLink to="/poll-results" className={linkClass}>
-                            Poll Results
                         </NavLink>
 
                         <NavLink
@@ -63,22 +83,14 @@ export default function Navigation({ isAuthenticated }) {
                     </>
                 ) : (
                     <>
-                        <NavLink to="/albums" className={linkClass}>
-                            Albums
-                        </NavLink>
-
-                        <NavLink to="/poll" className={linkClass}>
-                            Poll
-                        </NavLink>
-
-                        <NavLink to="/poll-results" className={linkClass}>
-                            Poll Results
+                        <NavLink to="/polls/manage" className={linkClass}>
+                            Manage Polls
                         </NavLink>
 
                         <button
                             type="button"
                             onClick={handleLogout}
-                            className="ml-auto rounded-md px-3 py-2 text-sm font-medium transition text-slate-700 hover:bg-slate-200"
+                            className="ml-auto rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
                         >
                             Logout
                         </button>
