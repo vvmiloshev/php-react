@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const PER_PAGE = 12
+const PER_PAGE = 3
 
 function AlbumCard({ album }) {
     return (
@@ -11,11 +11,6 @@ function AlbumCard({ album }) {
         >
             <div className="aspect-[4/3] bg-slate-200">
                 {album.cover_image_url ? (
-                    /*<img
-                        src={album.cover_image_url}
-                        alt={album.title}
-                        className="h-full w-full object-cover"
-                    />*/
                     <img
                         src={`http://localhost${album.cover_image_url}`}
                         alt={album.title}

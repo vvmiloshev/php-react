@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {getJsonAuthHeaders} from "../api/auth";
 
-export default function CreateAlbumPage() {
+export default function AlbumCreatePage() {
     const navigate = useNavigate()
 
     const [albumId, setAlbumId] = useState(null)

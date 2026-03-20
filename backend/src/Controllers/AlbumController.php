@@ -7,35 +7,23 @@ namespace Src\Controllers;
 use Src\Core\Database;
 use Src\Core\Request;
 use Src\Models\Album;
+use Src\Models\Photo;
 
 class AlbumController extends AppController
 {
     private Album $albums;
+    private Photo $photos;
 
     public function __construct(Database $database)
     {
         parent::__construct($database);
 
         $this->albums = new Album($database);
+        $this->photos = new Photo($database);
     }
 
     public function index(Request $request): void
     {
-        /*$userId = (int) ($request->input('user_id') ?? 0);
-
-        if ($userId > 0) {
-            $this->success(
-                $this->albums->findAll($userId),
-                'Albums fetched successfully.'
-            );
-            return;
-        }
-
-        $this->success(
-            $this->albums->all(),
-            'Albums fetched successfully.'
-        );*/
-
         $this->success(
             $this->albums->findAll(),
             'Albums fetched successfully.'
@@ -57,6 +45,10 @@ class AlbumController extends AppController
             $this->error('Album not found.', 404);
             return;
         }
+
+        $photos = $this->photos->findByAlbumId($id);
+
+        $album['photos'] = $photos;
 
         $this->success($album, 'Album fetched successfully.');
     }
@@ -122,8 +114,11 @@ class AlbumController extends AppController
             return;
         }
 
+        $updatedAlbum = $this->albums->findById($id) ?: [];
+        $updatedAlbum['photos'] = $this->photos->findByAlbumId($id);
+
         $this->success(
-            $this->albums->findById($id) ?: [],
+            $updatedAlbum,
             'Album updated successfully.'
         );
     }

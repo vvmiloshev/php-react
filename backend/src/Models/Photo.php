@@ -31,6 +31,25 @@ class Photo extends AppModel
         return (int) $this->pdo->lastInsertId();
     }
 
+    public function findById(int $id): array|false
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT * FROM photos WHERE id = :id LIMIT 1'
+        );
+
+        $statement->execute([
+            'id' => $id,
+        ]);
+
+        $photo = $statement->fetch();
+
+        if ($photo === false) {
+            return false;
+        }
+
+        return $this->mapPhoto($photo);
+    }
+
     public function findByAlbumId(int $albumId): array
     {
         $statement = $this->pdo->prepare(
@@ -41,7 +60,9 @@ class Photo extends AppModel
             'album_id' => $albumId,
         ]);
 
-        return $statement->fetchAll();
+        $photos = $statement->fetchAll();
+
+        return array_map(fn (array $photo) => $this->mapPhoto($photo), $photos);
     }
 
     public function updateById(int $id, array $data): bool
@@ -58,5 +79,16 @@ class Photo extends AppModel
             'path' => $data['path'],
             'description' => $data['description'],
         ]);
+    }
+
+    private function mapPhoto(array $photo): array
+    {
+        if (!empty($photo['path'])) {
+            $photo['image_url'] = 'api/files/photos/' . str_replace('/uploads/photos/', '', $photo['path']);
+        } else {
+            $photo['image_url'] = null;
+        }
+
+        return $photo;
     }
 }
