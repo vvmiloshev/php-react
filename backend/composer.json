@@ -6,10 +6,6 @@
   "autoload": {
     "psr-4": {
       "Src\\": "src/"
-    },
-    "files": [
-      "src/Support/Helpers.php",
-      "src/Support/Auth.php"
-    ]
+    }
   }
 }
