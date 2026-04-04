@@ -68,10 +68,6 @@ export default function Navigation() {
 
                 {!isAuthenticated ? (
                     <>
-                        <NavLink to="/gallery" className={linkClass}>
-                            Gallery
-                        </NavLink>
-
                         <NavLink
                             to="/auth"
                             className={({ isActive }) =>
