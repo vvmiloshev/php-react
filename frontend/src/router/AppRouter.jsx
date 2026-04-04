@@ -26,14 +26,6 @@ export default function AppRouter() {
                     <Route path="/albums" element={<AlbumsPage />} />
                     <Route path="/poll" element={<PollPage />} />
 
-                    {/*<Route path="/albums"
-                        element={
-                            <ProtectedRoute>
-                                <AlbumsPage />
-                            </ProtectedRoute>
-                        }
-                    />*/}
-
                     <Route path="/albums/create"
                         element={
                             <ProtectedRoute>
@@ -57,14 +49,6 @@ export default function AppRouter() {
                         }
                     />
 
-                    {/*<Route path="/poll"
-                        element={
-                            <ProtectedRoute>
-                                <PollPage />
-                            </ProtectedRoute>
-                        }
-                    />
-*/}
                     <Route path="/poll-results"
                         element={
                             <ProtectedRoute>
